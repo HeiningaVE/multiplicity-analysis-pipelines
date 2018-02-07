@@ -1,4 +1,3 @@
-library(ggplot2)
 library(lme4)
 library(stringr)
 library(tidyverse)
@@ -53,8 +52,9 @@ ggplot(data = regr_df, aes(x = y,y = b, colour = y)) +
   coord_flip() + 
   theme(legend.position = "none")
 # CIDI has a much wider range than all the others, this might be because it
-# comes from a logistic regression. Have to see if we can actually use those
-# effect sizes in our current approach
+# comes from a logistic regression. Logistic regression coefficients cannot be
+# compared between models, so this might not be appropriate here either. For 
+# now, cidi is included, but this is something that needs a bit more thinking.
 
 # distribution of regression coefficients per x1
 ggplot(data = regr_df, aes(x = x1,y = b, colour = x1)) + 
@@ -71,31 +71,24 @@ ggplot(data = regr_df, aes(x = x2,y = b, colour = x2)) +
   theme(legend.position = "none")
 
 # analysis =====================================================================
-# For now, do analyses on two subsets: including and excluding CIDI.
-regr_df_nc <- filter(regr_df, y != "cidi")
-
 # look at average coefficient through single level intercept only regression
 fit_lm <- lm(b ~ 1, data = regr_df)
-fit_lm_nc <- lm(b ~ 1, data = regr_df_nc)
 summary(fit_lm)
-summary(fit_lm_nc)
 
 # decompose variance by variable categories (y, x1, & x2) by fitting
 # cross-classified mixed model
 fit_lmm <- lmer(b ~ (1 | y) + (1 | x1) + (1 | x2), data = regr_df)
-fit_lmm_nc <- lmer(b ~ (1 | y) + (1 | x1) + (1 | x2), data = regr_df_nc)
 summary(fit_lmm)
-summary(fit_lmm_nc)
 
 # examine variance components (i.e. proportion of variance by variable cat)
 var_lmm <- as.data.frame(VarCorr(fit_lmm))
 var_lmm <- var_lmm[c(1,3,2,4),]
 rbind(var_lmm$grp, round(var_lmm$vcov / sum(var_lmm$vcov), 3))
 
-var_lmm_nc <- as.data.frame(VarCorr(fit_lmm_nc))
-rbind(var_lmm_nc$grp, round(var_lmm_nc$vcov / sum(var_lmm_nc$vcov), 3))
-
-# how much variance by sample (i.e. sex) and reporting level (parent / self)?
+# do sample (female/male/mixed) and reporting level (parent/self) affect
+# results? Note the potential issue with parent_stress and self_stress - i.e.
+# the reporting variable on adversities might not be correct at the moment. This
+# should be checked.
 fit_lmm_sample <- lmer(b ~ sample + (1 | y) + (1 | x1) + (1 | x2), 
                        data = regr_df)
 fit_lmm_dep <- lmer(b ~ report_lvl_dep + (1 | y) + (1 | x1) + (1 | x2), 
