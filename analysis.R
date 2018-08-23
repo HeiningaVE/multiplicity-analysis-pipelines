@@ -1,10 +1,76 @@
-library(lme4)
-library(stringr)
-library(tidyverse)
+---
+  title             : "Justification is good; transparency is better: Applying the multilevel multivariate meta-analysis method"
+shorttitle        : "The dynamical signature of anhedonia in MDD"
 
-# import data ==================================================================
-regr_df <- read_csv('2160_regressions.csv')
+author: 
+  - name          : "Vera E. Heininga"
+affiliation   : "1"
+corresponding : yes
+address       : "Tiensestraat 102 - bus 3713, 3000 Leuven"
+email         : "vera.heininga@kuleuven.be"
+- name          : "B. Stuijfzand"
+affiliation   : "2"
+- name          : "J.A.C.J. Bastiaansen"
+affiliation   : "3"
+- name          : "A.J. Oldehinkel"
+affiliation   : "3"
+- name          : "W. Vanpaemel"
+affiliation   : "1"
+- name          : "F. Teurlinckx"
+affiliation   : "1"
+- name          : "R. Artner"
+affiliation   : "1"
+- name          : "A. Mason"
+affiliation   : "4"    
+- name          : "M. Munafò"
+affiliation   : "5"   
 
+affiliation:
+  - id            : "1"
+institution   : "Research group of Quantitative Psychology and Individual Differences, KU Leuven, Belgium"
+- id            : "2"
+institution   : "Statscape - Data Science and Statistics"
+- id            : "3"
+institution   : "University Medical Center Groningen"
+- id            : "4"
+institution   : "University of Western Australia"
+- id            : "5"
+institution   : "University of Bristol"
+
+
+abstract: |
+  Would not it be great if we could not only report a finding, but also how robust this finding is over all the alternative analysis options that are present in that dataset? Also, transparently discussing findings along these different alternatives could provide others the opportunity to question analytical choices, and to come up with and test other alternatives (Simmons, Nelson en Simonsohn, 2011). Transparently discussing findings along different alternatives provides not only a robustness check but also provides other with the opportunity to question analytical choices, and to come up with and test other alternatives (Heininga et al., 2015; Silberzahn et al., 2017). With the aim to facilitate those researchers who would like to be more transparent in their analytical decisions, the present study illustrates what can be gained by adopting the multilevel multivariate meta-analysis approach.
+
+keywords          : "Transparancy; Multiverse"
+
+bibliography      : ["references.bib"]
+
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+lineno            : no
+figsintext        : no
+
+documentclass     : "apa6"
+mask              : no
+class             : "man"
+output            : papaja::apa6_pdf
+classoption: landscape
+---
+
+```{r load_packages, include = FALSE}
+devtools::install_github("crsh/papaja")
+# install.packages("stringi", repos="http://cran.rstudio.com/", dependencies=TRUE)
+
+if (!require("pacman")) install.packages("pacman", repos = "http://cran.us.r-project.org")
+pacman::p_load(lme4, stringr, tidyverse)
+```
+
+```{r Data_Import, include = FALSE}
+regr_df <- read.csv("i:/# SyncFiles/Paper ideas/Multiplicity paper/2160_regressions.csv", header = TRUE, dec = ".",sep = "\t")
+```
+
+```{r Prep_work, include = FALSE}
 # set up reporting variable (i.e. parent/self) for adversities and depression
 # variables
 regr_df$report_lvl_dep <- "child"
@@ -28,6 +94,11 @@ regr_df$report_lvl_adv[regr_df$x1 == 'pprisks_z'] <- "parent"
 regr_df$sample[regr_df$sample == 2] <- "mixed"
 regr_df$sample[regr_df$sample == 1] <- "female"
 regr_df$sample[regr_df$sample == 0] <- "male"
+```
+
+# Examining data
+
+```{r Examining_Data}
 
 # examining data ===============================================================
 # distribution of regression coefficients
@@ -69,7 +140,11 @@ ggplot(data = regr_df, aes(x = x2,y = b, colour = x2)) +
   geom_jitter(alpha = .5) +
   coord_flip() + 
   theme(legend.position = "none")
+```
 
+# Analysis
+
+```{r}
 # analysis =====================================================================
 # look at average coefficient through single level intercept only regression
 fit_lm <- lm(b ~ 1, data = regr_df)
@@ -107,3 +182,5 @@ fit_lmm_allpredictors <- lmer(b ~ sample * report_lvl_dep * report_lvl_adv +
 
 summary(fit_lmm_allpredictors)
 car::Anova(fit_lmm_allpredictors, type = 3)
+```
+ 
