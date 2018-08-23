@@ -1,6 +1,6 @@
 ---
 title             : "Justification is good, transparency is better: Applying the multilevel meta-analysis method"
-shorttitle        : "The dynamical signature of anhedonia in MDD"
+shorttitle        : "Justification is good, transparency is better"
 
 author: 
   - name          : "Vera E. Heininga"
